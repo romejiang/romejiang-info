@@ -24,13 +24,8 @@
 
 虚拟条码超市技术供应商
 
-18792936505 范
-85761618 愉俊
-
 
 4aznknza
-
-320775108
    
 mysqldump -u root -p multi_trade | gzip > multi_trade_end.sql.gz
   
