@@ -1,0 +1,6 @@
+main.py 
+做了一些配置信息的初始化
+选择linux的线程处理模块
+实现了两个类  PyTransport 实现了 component.Service 接口
+App 实现启动和装配服务器
+
