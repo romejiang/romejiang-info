@@ -1,0 +1,452 @@
+## 修改/etc/hosts 文件把所有集群的机器名和ip对应
+## $EJABBERD  $ERLANG 设置这两个环境变量
+## 登录root
+
+## 配置第一台服务器
+关键问题在 /etc/ejabberd/ejabberdctl.cfg 文件里
+关键问题配置ejabberd.cfg 配置文件中 {registration_timeout, infinity}. 不限制单IP注册时间  mod_register 模块的 access 需要配置allow 
+
+
+==================================
+  测试代码和优化代码
+
+http://hi.baidu.com/yuhongchun027/blog/item/4035c64e5913edd0d1c86a03.html  我们的网站压力究竟在哪里
+http://www.ejabberd.im/benchmark#test3
+==================================
+ 
+##这仅仅是同步数据库
+## 备份服务器
+
+erl -name ejabberd@im2.sifang.com -mnesia dir "\"//var/lib/ejabberd\""  -mnesia extra_db_nodes "['ejabberd@im1.sifang.com']" -s mnesia
+
+
+/usr/bin/erl -sname ejabberd@im2 -mnesia dir "\"//var/lib/ejabberd\"" -mnesia extra_db_nodes "['ejabberd@im1']" -s mnesia
+erl -sname ejabberd@im2 -mnesia extra_db_nodes "['ejabberd@im1']" -s mnesia
+erl -sname ejabberd@second -mnesia extra_db_nodes "['ejabberd@first']" -s mnesia
+
+
+	mnesia:info().
+      
+	erlang:get_cookie().
+
+	mnesia:change_table_copy_type(schema, node(), disc_copies).
+
+ 
+ 
+	mnesia:add_table_copy(acl,node(),disc_copies). 
+	mnesia:add_table_copy(captcha,node(),disc_copies). 
+	mnesia:add_table_copy(config,node(),disc_copies). 
+	mnesia:add_table_copy(http_bind,node(),disc_copies). 
+	mnesia:add_table_copy(iq_response,node(),disc_copies). 
+	mnesia:add_table_copy(local_config,node(),disc_copies). 
+	mnesia:add_table_copy(mod_register_ip,node(),disc_copies). 
+	mnesia:add_table_copy(route,node(),disc_copies). 
+	mnesia:add_table_copy(s2s,node(),disc_copies). 
+	mnesia:add_table_copy(session,node(),disc_copies). 
+	mnesia:add_table_copy(session_counter,node(),disc_copies). 
+	mnesia:add_table_copy(sql_pool,node(),disc_copies). 
+ 
+
+
+
+        yum install -y subversion erlang-dev erlang-nox
+        svn co http://svn.process-one.net/ejabberd-modules/mysql/trunk ejabberd-module-mysql.svn
+        cd ejabberd-module-mysql.svn; ./build.sh; cp ebin/*.beam /lib/ejabberd/ebin/
+	
+	wget https://svn.process-one.net/ejabberd-modules/mod_rest/trunk/src/mod_rest.erl
+        erlc -I /lib/ejabberd/include mod_rest.erl -pa /lib/ejabberd/ebin
+        cp mod_rest.beam /lib/ejabberd/ebin/
+
+#########################################################
+###########                 pyMSNt              ########################
+#########################################################
+yum install -y python-devel mysql-devel
+yum whatprovides /usr/lib/python2.5/config/Makefile
+ 
+http://running.iteye.com/blog/1122370 Centos升级python到2.6
+
+wget http://www.python.org/ftp/python/2.6.7/Python-2.6.7.tar.bz2 
+
+tar jxvf  Python2.6.7.tar.bz2  
+cd Python2.6.7  
+./configure  
+make && make install 
+
+mv /usr/bin/python  /usr/bin/python.bak  
+ln -s //usr/local/bin/python2.6 /usr/bin/python  
+
+vim /usr/bin/yum 
+ 
+安装setuptools
+wget -q http://peak.telecommunity.com/dist/ez_setup.py
+python ez_setup.py
+
+
+easy_install mysqldbda
+easy_install MySQL-python
+easy_install PIL
+
+wget http://pypi.python.org/packages/source/z/zope.interface/zope.interface-3.7.0.tar.gz#md5=8f3e942e9556ed27ac1a71ee85bf697f
+wget http://pypi.python.org/packages/source/p/pyOpenSSL/pyOpenSSL-0.13.tar.gz#md5=767bca18a71178ca353dff9e10941929
+wget http://findingscience.com/twistar/releases/twistar-1.0.tar.gz
+wget http://twistedmatrix.com/Releases/Twisted/11.0/Twisted-11.0.0.tar.bz2
+
+python setup.py install
+#########################################################
+#########################################################
+重启pymsnt是否影响客户端服务  hot-deployment 
+	
+kill -HUP pid
+其中 pid 是进程标识。如果想要更改配置而不需停止并重新启动服务，请使用该命令。在对配置文件作必要的更改后，发出该命令以动态更新服务配置。
+
+
+http://blog.daviesliu.net/2005/06/10/235635/   Python Module Auto Reload
+http://groups.google.com/group/python-cn/browse_thread/thread/2273382012e5b46/b1a900be5e2b2082?lnk=gst&q=reload#b1a900be5e2b2082  关于reload
+
+#########################################################
+#########################################################
+########   HA Proxy  配置    ############################
+http://code.google.com/p/haproxy-docs/ 文档
+#########################################################
+#########################################################
+
+if ! [ -e haproxy-1.4.18.tar.gz ]; then wget http://haproxy.1wt.eu/download/1.4/src/haproxy-1.4.18.tar.gz; fi
+if [ -d haproxy-1.4.18 ]; then rm -Rf haproxy-1.4.18; fi
+tar zxvf haproxy-1.4.18.tar.gz
+cd haproxy-1.4.18
+make TARGET=linux26 　　##我的系统内核为2.6，所以target=linux26
+sudo make install  
+## haproxy config 
+sed -i 's/serverip1/xxx/g' file
+
+cp haproxy.cfg /etc/haproxy/
+cp examples/haproxy.init /etc/init.d/haproxy
+chmod a+x /etc/init.d/haproxy
+cd ..
+
+/usr/local/sbin/haproxy -f /etc/haproxy/haproxy.cfg -c
+
+安装完成之后，配置rsyslog
+vi /etc/rsyslog.d/haproxy.conf
+加入以下内容：
+$ModLoad imudp
+$UDPServerRun 514
+
+local0.* /var/log/haproxy.log
+
+/etc/init.d/rsyslog restart  
+
+/etc/init.d/haproxy start
+平滑重启的命令：
+haproxy -f /etc/haproxy/haproxy.cfg -sf `cat /var/run/haproxy.pid`
+
+
+defaults | frontend | listen | backend
+
+ * Process management and security
+   - chroot
+   - daemon
+   - gid
+   - group
+   - log
+   - log-send-hostname
+   - nbproc
+   - pidfile
+   - uid
+   - ulimit-n	
+   - user
+   - stats
+   - node
+   - description
+
+ * Performance tuning
+   - maxconn
+   - maxpipes
+   - noepoll
+   - nokqueue
+   - nopoll
+   - nosepoll
+   - nosplice
+   - spread-checks
+   - tune.bufsize
+   - tune.chksize
+   - tune.maxaccept
+   - tune.maxpollevents
+   - tune.maxrewrite
+   - tune.rcvbuf.client
+   - tune.rcvbuf.server
+   - tune.sndbuf.client
+   - tune.sndbuf.server
+
+
+balance 
+http://1234567aaa.blog.51cto.com/blog/373182/317891
+	roundrobin 简单的轮询，这个不多说，这个是负载均衡基本都具备的；
+	static-rr   根据权重，配合server APP03 192.168.109.5:81 cookie app1inst3 check inter 2000 rise 2 fall 5  weight 1
+	leastconn   最少连接者先处理
+	source    通过hash 源地址ip来分配服务器地址，可以实现ip绑定~
+	uri        根据uri的hash分配服务器
+	url_param   根据url参数的hash 分配服务器
+	hdr(name)   根据HTTP头信息中的name字段hash，分配服务器
+	rdp-cookie
+	rdp-cookie(name)  根据cookie中name的值的hash，分配服务器
+
+HAProxy 三种方式实现session保持
+
+balance source  ## ip分配
+rdp-cookie(name)  ##cookie 识别  
+ ##session 识别  
+#########################################################
+#########################################################
+# this config needs haproxy-1.1.28 or haproxy-1.2.1
+
+global
+        log 127.0.0.1   local0 debug
+        log 127.0.0.1   local1 notice
+        #log loghost    local0 info
+        maxconn 65535 #4096
+        chroot /usr/share/haproxy
+        uid 99
+        gid 99
+        daemon
+        #debug
+        #quiet
+
+defaults
+        log     global
+        mode    tcp
+        option  tcplog
+        option  dontlognull
+        retries 3
+        option redispatch
+        maxconn 2000
+        contimeout      60000
+        clitimeout      120000
+        srvtimeout      120000
+
+listen admin_stat
+        bind *:8011
+    mode http                       #http的7层模式
+        ##option httplog                  #采用http日志格式
+    #log 127.0.0.1 local0 err
+    maxconn 10
+    stats refresh 30s               #统计页面自动刷新时间
+    stats uri /stats                #统计页面url
+    stats realm HuanCai\ Haproxy  #统计页面密码框上提示文本
+    stats auth admin:admin          #统计页面用户名和密码设置
+    stats hide-version              #隐藏统计页面上HAProxy的版本信息
+
+listen xmpp
+        bind *:5220
+        mode tcp
+        balance source
+        ##balance roundrobin
+        option tcplog
+        ##log global
+        ##log 127.0.0.1 local1 debug
+        server s1 192.168.137.199:5222 weight 5 check inter 10000
+        server s2 192.168.137.154:5222 weight 5 check inter 10000 
+
+#########################################################
+#########################################################
+
+http://www.ejabberd.im/features  ejabberd 2.1.6 Features
+http://www.ejabberd.im/node/665  erlang node name with fully qualified hostname
+http://www.ejabberd.im/interconnect-erl-nodes Interconnecting Erlang Nodes
+http://oneteam.im/ client
+http://tomasz.sterna.tv/2009/05/nginx-and-bosh-comet-connections/ nginx and BOSH / Comet connections
+
+http://www.ejabberd.im/node/1614  Failover HA behaviour
+ejabberd nodes in a cluster can share some tables of the database: accounts (username and password), roster, offline messages, vcard...
+Each node has his own client and server connections. When a node crashes, all his connections are lost.
+http://stackoverflow.com/questions/4132165/any-advice-on-how-to-handle-fail-over-in-an-ejabberd-cluster Any advice on how to handle fail-over in an ejabberd cluster?
+
+ejabberd is not supposed to crash under load. It might slow down, but not crash.
+
+https://support.process-one.net/browse/EJAB-532 
+#########################################################
+#########################################################
+
+vishalmk wrote:
+Both ejabberd instances connect to a single MySQL Backend server.
+we are not using mnesia as a db for ejabberd
+
+You must understand this: you can configure ejabberd to use MySQL for storing some user information, like roster, offline messages... But in any case, ejabberd still uses Mnesia to store other information.
+
+You already solved the clustering of the MySQL tables: both nodes connect to the same MySQL database. Now you must deal with the clustering of some other Mnesia tables: by following the steps in the guide.
+ 
+#########################################################
+#########################################################
+Ejabberd-Cluster Database Configuration
+http://dev.esl.eu/blog/2009/12/11/ejabberd-cluster-database-configuration/
+#########################################################
+#########################################################
+
+In a recent post to the ejabberd mailinglist Jesse Thompson shared his insights on hof to configure the mnesia-database dependencies and storage locations in an ejabberd cluster that has more than one node.
+
+I formated his inforamtion and put them here, since I found them to be rather insightful.
+
+He makes a few basic inferences and then walks the list of database tables to show what has to be done to conform to this simple set of rules:
+
+Inference #1:
+
+If the master is RAM&disc, then the slave should be:
+
+    RAM&disc: If you want it available when slave starts up alone
+    RAMcopy: If you don’t
+
+Inference #2:
+
+If the master is RAMcopy, then the slave should be:
+
+    RAM copy (instead of Remote Copy): So that the feature works on the slave when the master is down.
+    Remote copy: If the feature only works if the master is up.
+
+Inference #3:
+
+If the master is DiscOnly, then the slave should be:
+
+    Remote copy: If the feature only works if the master is up.
+    There is a possible synchronization problem if we try to set the slave to DiscOnly (needs to be confirmed)
+    Consider changing both master and slave to RAM&disc
+
+These rules boil down to the following configuration for the locations of the mnesia tables of a “normal” ejabberd install:
+Table Name 	Master 	Slave
+acl 	RAM and disc copy 	RAM and disc copy
+caps_feature 	RAM copy 	RAM copy
+config 	RAM and disc copy 	RAM and disc copy
+disco_publish 	Disc only copy 	Remote copy
+http_bind 	RAM copy 	RAM copy
+http_poll 	RAM copy 	RAM copy
+iq_response 	RAM copy 	RAM copy
+last_activity 	Disc only copy 	Remote copy
+local_config 	RAM and disc copy 	RAM and disc copy
+motd 	Disc only copy 	Remote copy
+motd_users 	Disc only copy 	Remote copy
+muc_online_room 	RAM copy 	Remote copy
+muc_registered 	Disc only copy 	Remote copy
+muc_room 	Disc only copy 	Remote copy
+offline_msg 	Disc only copy 	Disc only copy
+privacy 	Disc only copy 	Disc only copy
+private_storage 	Disc only copy 	Remote copy
+pubsub_node
+
+	Disc only copy 	Remote copy
+roster 	RAM and disc copy 	RAM and disc copy
+route 	RAM copy 	RAM copy
+s2s 	RAM copy 	RAM copy
+schema 	RAM and disc copy 	RAM and disc copy
+session 	RAM copy 	RAM copy
+user_caps 	RAM and disc copy 	RAM and disc copy
+user_caps_resources 	RAM and disc copy 	RAM and disc copy
+vcard 	Disc only copy 	Remote copy
+vcard_search 	Disc only copy 	Remote copy
+
+Jesse makes some more comments on his descisions in his mailinglist post but the essence of it is:
+
+    avoid remote copies if you want your service to run without the master
+    keep stuff in RAM, or at least RAM and disc
+    if you have big databases (like offline_msg), store them on disc only, so they don’t eat up your RAM
+
+        Thanks for the advice and the allowance to post this here, Jesse!
+
+
+wget http://localhost:5280/rest/ --server-response --post-data '<message to="test_1@sifang.com" from="localhost/rest"><body>World</body></message>'
+
+
+lynx http://sifang.com:5280/rest/ -mime_header -post_data
+<message to="x@sifang.com" from="localhost/rest"><body>World</body></message>
+
+
+实现rest踢用户下线  ok
+实现脚本式xmpp bot客户端 ok
+测试是否丢消息 ok ，会丢ping会有一个timeout，如果在这个timeout里发的信息，一样会丢失。不用ping的话，会一直丢下去。 
+测试是否能踢人，并且已经保存了离线消息。ok，不丢失
+
+      case ejabberd_ctl:process2(Args, AccessCommands) of
+      {String, ?STATUS_SUCCESS} ->
+          {200, [], String};
+      {String, _Code} ->
+          {500, [], String}
+      end.
+
+kick_sessions(User, Server, Reason) ->
+    lists:map(
+      fun(Resource) ->
+	      kick_session(User, Server, Resource, Reason)
+      end,
+      get_resources(User, Server)).
+
+kick_session(User, Server, Resource, Reason) ->
+    ejabberd_router:route(
+      jlib:make_jid("", "", ""),
+      jlib:make_jid(User, Server, Resource),
+      {xmlelement, "broadcast", [], [{exit, Reason}]}).
+
+get_resources(User, Server) ->
+    lists:map(
+      fun(Session) ->
+	      element(3, Session#session.usr)
+      end,
+      get_sessions(User, Server)).
+   
+get_sessions(User, Server) ->
+    LUser = jlib:nodeprep(User),
+    LServer = jlib:nameprep(Server),
+    Sessions =  mnesia:dirty_index_read(session, {LUser, LServer}, #session.us),
+    true = is_list(Sessions),
+    Sessions.
+
+%%另一种方式，直接断掉 （mod_ping.erl  ：143 line）
+handle_cast({iq_pong, JID, timeout}, State) ->
+    Timers = del_timer(JID, State#state.timers),
+    ejabberd_hooks:run(user_ping_timeout, State#state.host, [JID]),
+    case State#state.timeout_action of
+    kill ->
+        #jid{user = User, server = Server, resource = Resource} = JID,
+        case ejabberd_sm:get_session_pid(User, Server, Resource) of
+        Pid when is_pid(Pid) ->
+            ejabberd_c2s:stop(Pid);                                                                                                                                 
+        _ ->
+            ok
+        end;
+    _ ->
+        ok
+    end,
+    {noreply, State#state{timers = Timers}};
+
+
+def SIGHUPstuff(*args):
+ 
+
+if os.name == "posix":
+    import signal
+    # Set SIGHUP to reload the config file & close & open debug file
+    signal.signal(signal.SIGINT, SIGHUPstuff)
+ 
+
+-module(mod_http_hello_world).
+-author('Anders Conbere').
+-vsn('1.0').
+-define(EJABBERD_DEBUG, true).
+-behavior(gen_mod).
+-export([
+	start/2,
+	stop/1,
+	process/2
+]).
+
+-include("ejabberd.hrl").
+-include("jlib.hrl").
+-include("ejabberd_http.hrl").
+
+start(_Host, _Opts) ->
+	ok.
+stop(_Host) ->
+	ok.
+process(_Path, _Request) ->
+	"Hello World".
+
+
+
+route add -net 192.168.137.0 netmask 255.255.255.0 gw 192.168.1.182
