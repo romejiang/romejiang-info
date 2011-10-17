@@ -102,4 +102,65 @@ GRANT ALL PRIVILEGES ON *.* TO root@"%" IDENTIFIED BY '1qazxsw2' WITH GRANT OPTI
 
 update user set password=password("new_pass") where user="root";
  
- 
+
+
+
+#jid{user = User, server = Server} = JID,
+    Sessions = get_resources(User, Server),
+    lists:map(fun(Resource) ->
+		    ?INFO_MSG("resource = ~p" , [JID]),
+		    start_ping(JID#jid.lserver, jlib:jid_replace_resource(JID, Resource))
+		end,
+		Sessions),
+
+
+
+<?xml version='1.0'?><stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="localhost" xmlns="jabber:client">
+
+<iq type='set' id='auth'><query xmlns='jabber:iq:auth'><username>rome</username><password>x</password><resource>pc</resource></query></iq>  
+
+<presence/>  
+
+<message from='rome@localhost/pc' to='x@localhost/Psi' id='ab52a'><body>Just a reply, I am admin.</body></message>
+
+
+fun(Response) ->gen_server:cast(Pid, {iq_pong, JID, Response}) end,  
+ban_account(User, Host, ReasonText) ->
+    Reason = prepare_reason(ReasonText),
+    kick_sessions(User, Host, Reason),
+    set_random_password(User, Host, Reason),
+    ok.
+
+kick_sessions(User, Server, Reason) ->
+    lists:map(
+      fun(Resource) ->
+	      kick_this_session(User, Server, Resource, Reason)
+      end,
+      get_resources(User, Server)).
+
+get_resources(User, Server) ->
+    lists:map(
+      fun(Session) ->
+	      element(3, Session#session.usr)
+      end,
+      get_sessions(User, Server)).
+
+get_sessions(User, Server) ->
+    LUser = jlib:nodeprep(User),
+    LServer = jlib:nameprep(Server),
+    Sessions =  mnesia:dirty_index_read(session, {LUser, LServer}, #session.us),
+    true = is_list(Sessions),
+    Sessions.
+
+kick_session(User, Server, Resource, ReasonText) ->
+    kick_this_session(User, Server, Resource, prepare_reason(ReasonText)),
+    ok.
+
+kick_this_session(User, Server, Resource, Reason) ->
+    ejabberd_router:route(
+      jlib:make_jid("", "", ""),
+      jlib:make_jid(User, Server, Resource),
+      {xmlelement, "broadcast", [], [{exit, Reason}]}).
+
+
+awk '{print $7}' access.log|sort |uniq -c |sort -n
