@@ -78,13 +78,14 @@ ln -s //usr/local/bin/python2.6 /usr/bin/python
 vim /usr/bin/yum 
  
 安装setuptools
-wget -q http://peak.telecommunity.com/dist/ez_setup.py
+wget   http://peak.telecommunity.com/dist/ez_setup.py
 python ez_setup.py
 
 
 easy_install mysqldbda
 easy_install MySQL-python
 easy_install PIL
+easy_install xmpppy
 
 wget http://pypi.python.org/packages/source/z/zope.interface/zope.interface-3.7.0.tar.gz#md5=8f3e942e9556ed27ac1a71ee85bf697f
 wget http://pypi.python.org/packages/source/p/pyOpenSSL/pyOpenSSL-0.13.tar.gz#md5=767bca18a71178ca353dff9e10941929
@@ -450,3 +451,55 @@ process(_Path, _Request) ->
 
 
 route add -net 192.168.137.0 netmask 255.255.255.0 gw 192.168.1.182
+
+
+lists:foreach(
+	fun(E) ->
+		if
+		   time_diff(ID , erlang:now()) > ? ->
+		   LDomain = E#route.domain,
+		   I = E#route.local_hint,
+		   mnesia:write(
+		     #route{domain = LDomain,
+			pid = undefined,
+			local_hint = I}),
+		   mnesia:delete_object(E);
+		   true ->
+			mnesia:delete_object(E)
+		end
+	end, Es)
+
+
+    Es = ets:select(?ETS_TABLE,[{{'_',JID,'_'},[],['$_']}]),
+    lists:foreach(fun({ID, _JID, _Packet}) ->
+            TimeDiff = time_diff(ID , erlang:now()),
+            if
+                TimeDiff > ?IQ_TIMEOUT -> ets:delete(?ETS_TABLE, ID);
+                true -> ?INFO_MSG("~p ~p = ~p ~n", [time_to_second(ID) , time_diff(ID , erlang:now()) , Packet])
+            end
+        end, Es).
+
+
+	IQ response info = {iq,"3635078960",
+                                                        error,"urn:xmpp:ping",
+                                                        [],
+                                                        [{xmlelement,"ping",
+                                                          [{"xmlns",
+                                                            "urn:xmpp:ping"}],
+                                                          []},
+                                                         {xmlelement,"error",
+                                                          [{"code","503"},
+                                                           {"type","cancel"}],
+                                                          [{xmlelement,
+                                                            "service-unavailable",
+                                                            [{"xmlns",
+                                                              "urn:ietf:params:xml:ns:xmpp-stanzas"}],
+                                                            []}]}]}
+
+case xml:get_tag_attr_s("type", Packet) of
+	"error" ->
+		?ERROR_MSG("Received error message~n~p -> ~p~n~p", [From, JID, Packet]);
+	_ ->
+		ets:insert(?ETS_TABLE ,{erlang:now(), JID, From, Packet}),
+		start_ping(JID#jid.lserver, JID)
+end
