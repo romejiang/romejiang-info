@@ -540,3 +540,7 @@ history
 117.34.88.56:7757  用户名默认  
 鲁飞龙 12:43:24 
 密码 123456aj.cn 
+
+root
+forxinxiaowen
+
