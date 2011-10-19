@@ -425,81 +425,118 @@ if os.name == "posix":
     # Set SIGHUP to reload the config file & close & open debug file
     signal.signal(signal.SIGINT, SIGHUPstuff)
  
+================================================
+filter_packet
+http://metajack.im/2008/10/09/echo-bot-part-two-making-a-component/
+================================================
+-module(packet_interceptor).
+-behaviour(gen_mod).
 
--module(mod_http_hello_world).
--author('Anders Conbere').
--vsn('1.0').
--define(EJABBERD_DEBUG, true).
--behavior(gen_mod).
--export([
-	start/2,
-	stop/1,
-	process/2
-]).
+-export([start/2,
+         stop/1]).
 
--include("ejabberd.hrl").
--include("jlib.hrl").
--include("ejabberd_http.hrl").
+-export([on_filter_packet/1]).
 
-start(_Host, _Opts) ->
-	ok.
-stop(_Host) ->
-	ok.
-process(_Path, _Request) ->
-	"Hello World".
+
+start(Host, _Opts) ->
+    ejabberd_hooks:add(filter_packet, global, ?MODULE, on_filter_packet, 0).
+
+on_-module(packet_interceptor).
+-behaviour(gen_mod).
+
+-export([start/2,
+         stop/1]).
+
+-export([on_filter_packet/1]).
+
+
+start(Host, _Opts) ->
+    ejabberd_hooks:add(filter_packet, global, ?MODULE, on_filter_packet, 0).
+
+on_filter_packet({From, To, XML} = Packet) ->
+    %% does something with a packet
+    %% should return modified Packet or atom `drop` to drop the packet
+    Packet.({From, To, XML} = Packet) ->
+    %% does something with a packet
+    %% should return modified Packet or atom `drop` to drop the packet
+    Packet.
 
 
 
 route add -net 192.168.137.0 netmask 255.255.255.0 gw 192.168.1.182
 
+<?xml version='1.0'?><stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="sifang.com" xmlns="jabber:client">
 
-lists:foreach(
-	fun(E) ->
-		if
-		   time_diff(ID , erlang:now()) > ? ->
-		   LDomain = E#route.domain,
-		   I = E#route.local_hint,
-		   mnesia:write(
-		     #route{domain = LDomain,
-			pid = undefined,
-			local_hint = I}),
-		   mnesia:delete_object(E);
-		   true ->
-			mnesia:delete_object(E)
-		end
-	end, Es)
+<iq type='set' id='auth'><query xmlns='jabber:iq:auth'><username>rome</username><password>x</password><resource>TelnetClient</resource></query></iq>  
+
+<presence/>
+
+<message to='x@sifang.com/Psi' from='rome@sifang.com/TelnetClient'><subject>Hello</subject><body>I am chatting with a Telnet client ! </body></message>  
 
 
-    Es = ets:select(?ETS_TABLE,[{{'_',JID,'_'},[],['$_']}]),
-    lists:foreach(fun({ID, _JID, _Packet}) ->
-            TimeDiff = time_diff(ID , erlang:now()),
-            if
-                TimeDiff > ?IQ_TIMEOUT -> ets:delete(?ETS_TABLE, ID);
-                true -> ?INFO_MSG("~p ~p = ~p ~n", [time_to_second(ID) , time_diff(ID , erlang:now()) , Packet])
-            end
-        end, Es).
+
+^Mozilla/4\.0\s\(compatible;\sMSIE\s6\.0;Windows\sNT\s5\.1\)$
+^Mozilla/4\.0\s\(compatible;\sMSIE\s6\.0;Windows\sNT\s5\.0\)$
+^Mozilla/5\.0\s\(compatible;\sMSIE\s6\.0;Windows\sNT\s5\.0\)$
+^Mozilla/4\.0\s\(compatible;\sMSIE\s6\.0;Windows\sNT\s5\.1;\s\)$
+^Mozilla/4.0\s\(compatible;\sMSIE\s6.0;\sWindows\sNT\s5.1;\sSV1;\s\.NETCLR\s1\.1\.4322;\s\.NET\sLR\s2\.0\.50727\)$
+
+if ($http_user_agent ~ "Mozilla/5.0\ \(Windows;\ U;\ Windows\ NT\ 5.1;\ zh-CN;\ rv:1.9.1.5\)\ Gecko/20091102\ Firefox/3.5.5") { return 404; }
+if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1\)") { return 404; }
+if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1\)") { return 404; }
+if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1;\ \)") { return 404; }
+if ($http_user_agent ~ "Mozilla/5.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.0\)") { return 404; }
+if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.0;\ .NET\ CLR\ 3.5.20706\)") { return 404; }
+if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1;\ SV1;\ .NET\ CLR\ 1.1.4322;\ .NET\ CLR\ 2.0.50727\)") { return 404; }
+
+if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1;\ SV1;\ .NET\ CLR\ 1.1.4322;\ .NET\ CLR\ 2.0.50727\)") { return 404; } 
+if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1;\ SV1;\ .NET\ CLR\ 1.1.4322;\ .NET\ CLR\ 2.0.50727\)") { return 404; }
+
+	
+电脑型号	联想 ThinkPad T420 笔记本电脑
+操作系统	Windows 7 旗舰版 32位 ( DirectX 11 )
+	
+处理器	英特尔 Pentium(奔腾) B940 @ 2.00GHz 双核
+主板	联想 4177QRC (英特尔 QM67 芯片组)
+内存	2 GB ( 三星 DDR3 1333MHz )
+主硬盘	西数 WDC WD3200BEVT-08A23T1 ( 320 GB / 5400 转/分 )
+显卡	NVIDIA NVS 4200M     ( 1 GB / 联想 )
+显示器	联想 LEN40A0 ( 14 英寸 )
+光驱	日立-LG DVDRAM GT33N DVD刻录机
+声卡	High Definition Audio 设备 @ 英特尔 6 Series Chipset 高保真音频
+网卡	英特尔 82579LM Gigabit Network Connection / 联想
+	
+网卡	英特尔 82579LM Gigabit Network Connection
+无线网卡	瑞昱 RTL8188CE Wireless LAN 802.11n PCI-E NIC
 
 
-	IQ response info = {iq,"3635078960",
-                                                        error,"urn:xmpp:ping",
-                                                        [],
-                                                        [{xmlelement,"ping",
-                                                          [{"xmlns",
-                                                            "urn:xmpp:ping"}],
-                                                          []},
-                                                         {xmlelement,"error",
-                                                          [{"code","503"},
-                                                           {"type","cancel"}],
-                                                          [{xmlelement,
-                                                            "service-unavailable",
-                                                            [{"xmlns",
-                                                              "urn:ietf:params:xml:ns:xmpp-stanzas"}],
-                                                            []}]}]}
 
-case xml:get_tag_attr_s("type", Packet) of
-	"error" ->
-		?ERROR_MSG("Received error message~n~p -> ~p~n~p", [From, JID, Packet]);
-	_ ->
-		ets:insert(?ETS_TABLE ,{erlang:now(), JID, From, Packet}),
-		start_ping(JID#jid.lserver, JID)
-end
+git log
+git status
+git diff
+git commit --amend -a
+git status
+git log
+git show e14d1eece8a81121f9846770f9d889fe0da05b12
+git fetch
+git rebase origin/master
+git status
+git push origin HEAD
+git branch
+git log
+git co master
+git checkout master
+git rebase origin/master
+git status
+git cherry-pick 1a82c348ae504451f9aa20789fbb7a25888d9f79
+git log
+git status
+git push origin HEAD
+history 
+
+
+
+鲁飞龙 12:42:54 
+117.34.88.56:7757  用户名默认  
+鲁飞龙 12:43:24 
+密码 123456aj.cn 
