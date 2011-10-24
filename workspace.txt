@@ -466,7 +466,7 @@ route add -net 192.168.137.0 netmask 255.255.255.0 gw 192.168.1.182
 
 <?xml version='1.0'?><stream:stream xmlns:stream="http://etherx.jabber.org/streams" to="sifang.com" xmlns="jabber:client">
 
-<iq type='set' id='auth'><query xmlns='jabber:iq:auth'><username>rome</username><password>x</password><resource>TelnetClient</resource></query></iq>  
+<iq type='set' id='auth'><query xmlns='jabber:iq:auth'><username>x</username><password>x</password><resource>TelnetClient</resource></query></iq>  
 
 <presence/>
 
@@ -543,6 +543,7 @@ history
 root
 forxinxiaowen
 
+ 
 
 
 legacy.LegacyConnection = mccp3.MobileClientFactory
@@ -568,3 +569,6 @@ MTK 广告实现方法
 
 
 def makeSession(pytrans, jabberID, resource, ulang):
+ 
+ 
+ 
