@@ -179,7 +179,6 @@ defaults | frontend | listen | backend
    - tune.sndbuf.client
    - tune.sndbuf.server
 
-
 balance 
 http://1234567aaa.blog.51cto.com/blog/373182/317891
 	roundrobin 简单的轮询，这个不多说，这个是负载均衡基本都具备的；
@@ -544,3 +543,28 @@ history
 root
 forxinxiaowen
 
+
+
+legacy.LegacyConnection = mccp3.MobileClientFactory
+main.register = mccp3.register
+
+# Connect to the DB
+from twistar.registry import Registry
+Registry.DBPOOL = mccp3.ReconnectingConnectionPool('MySQLdb',
+        cp_reconnect=True, user="root", passwd="sasa", db="ejabberd",
+        use_unicode=True, charset='utf8')
+
+
+Software\Microsoft\VisualStudio\9.0\Setup\VC
+
+MTK 广告实现方法
+
+313
+440
+
+
+
+<presence actor="user" xmlns:actor="http://xmpp.sifang.com/"></presence>
+
+
+def makeSession(pytrans, jabberID, resource, ulang):
