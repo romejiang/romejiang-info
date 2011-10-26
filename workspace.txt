@@ -502,7 +502,7 @@ if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1
 显卡	NVIDIA NVS 4200M     ( 1 GB / 联想 )
 显示器	联想 LEN40A0 ( 14 英寸 )
 光驱	日立-LG DVDRAM GT33N DVD刻录机
-声卡	High Definition Audio 设备 @ 英特尔 6 Series Chipset 高保真音频
+声卡	High Definition Audio 设备 @ 英特尔 6 Series Chipset 高保真音频 Conexant
 网卡	英特尔 82579LM Gigabit Network Connection / 联想
 	
 网卡	英特尔 82579LM Gigabit Network Connection
@@ -572,3 +572,4 @@ def makeSession(pytrans, jabberID, resource, ulang):
  
  
  
+CPO，没有点击，但有手势在上面移动
