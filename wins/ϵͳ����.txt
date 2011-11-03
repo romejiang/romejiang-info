@@ -89,3 +89,25 @@ Minisite互动技术
 
 写段自我介绍给vc看的 
  
+ 
+   
+江涛，盈时广告架构师，1978年出生，毕业于西安交通大学计算机应用专业。 曾就职于博客动力任技术总监，带领技术团队成功研发当时领先的博客平台和广告平台。后加入玩转四方任架构师，从此进入移动互联网领域，深入研究移动互联网的技术和架构，为玩转四方设计了稳定高效的XMPP平台，给整个LBS、IM产品线提供了平台支持。有十年的J2EE研发经验，多年互联网创业经验。对技术架构、对网络运维有独到的看法和理解。曾成功运作知识产权战略，为公司注册多项发明专利，并与微软、诺基亚、索爱三家公司实施专利诉讼，并与诺基亚在专利复审阶段胜出，保护了公司的知识产权。对大型互联网架构设计颇感兴趣，有丰富的高可用性和并发性网络的架构经验。
+   
+	 
+在运营方式上应该更加有侵略性，应该吧传销机制加入app开发的模式中，让app开发者成为我们的股东，而不是下游客户。具体怎么做在思考。
+知识产权战略，发明专利，外观专利，软件著作权，商标，文化创意产业知识产权
+
+http://www.infoq.com/cn/news/2011/04/Snappy Google Snappy - 一个高速压缩库
+http://news.mydrivers.com/1/176/176338.htm 取代JPEG：Google正式发布图片压缩格式WebP
+http://www.cnbeta.com/articles/126150.htm  Google推出apache加速模块mod_pagespeed  
+http://code.google.com/intl/zh-CN/speed/page-speed/docs/module.html mod_pagespeed  
+http://www.360doc.com/content/11/0512/11/11991_116158262.shtml Google推出网页加速工具Page Speed 客户端
+http://xiexiejiao.cn/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/google-spdy.html Google网络协议“SPDY”
+http://www.cppblog.com/woaidongmao/archive/2009/06/23/88391.html google ProtoBuf开发者指南
+http://code.google.com/p/metasyntactic/wiki/ProtocolBuffers Objective-C Protocol Buffers for OSX and the iPhone
+http://www.chromium.org/spdy SPDY is an experiment with protocols for the web.  Its goal is to reduce the latency of web pages.
+http://www.chromium.org/spdy/spdy-whitepaper SPDY: An experimental protocol for a faster web
+http://heikezhi.om/2011/05/11/life-beyond-http-11-googles-spdy/
+
+
+ 
