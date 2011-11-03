@@ -179,7 +179,6 @@ defaults | frontend | listen | backend
    - tune.sndbuf.client
    - tune.sndbuf.server
 
-
 balance 
 http://1234567aaa.blog.51cto.com/blog/373182/317891
 	roundrobin 简单的轮询，这个不多说，这个是负载均衡基本都具备的；
@@ -503,7 +502,7 @@ if ($http_user_agent ~ "Mozilla/4.0\ \(compatible;\ MSIE\ 6.0;\ Windows\ NT\ 5.1
 显卡	NVIDIA NVS 4200M     ( 1 GB / 联想 )
 显示器	联想 LEN40A0 ( 14 英寸 )
 光驱	日立-LG DVDRAM GT33N DVD刻录机
-声卡	High Definition Audio 设备 @ 英特尔 6 Series Chipset 高保真音频
+声卡	High Definition Audio 设备 @ 英特尔 6 Series Chipset 高保真音频 Conexant
 网卡	英特尔 82579LM Gigabit Network Connection / 联想
 	
 网卡	英特尔 82579LM Gigabit Network Connection
@@ -534,28 +533,14 @@ git status
 git push origin HEAD
 history 
 
-
-
-鲁飞龙 12:42:54 
-117.34.88.56:7757  用户名默认  
-鲁飞龙 12:43:24 
-密码 123456aj.cn 
+ 
 
 root
 forxinxiaowen
+ 
 
-master
-podsk982Ld2
+<presence actor="user" to='msn.sifang.com' xmlns:actor="http://xmpp.sifang.com/"></presence>
+<presence actor="user"  xmlns:actor="http://xmpp.sifang.com/"></presence>
+ 
 
-votemanage
-lqp028xjvgs2D
-
-A4gDdj5F
-
-uEfs83tR
-
-LpknwBbb
-
-Kcei0mta
-
-KmPjKpLY
+ 
