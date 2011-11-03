@@ -533,43 +533,14 @@ git status
 git push origin HEAD
 history 
 
-
-
-鲁飞龙 12:42:54 
-117.34.88.56:7757  用户名默认  
-鲁飞龙 12:43:24 
-密码 123456aj.cn 
+ 
 
 root
 forxinxiaowen
-
  
 
-
-legacy.LegacyConnection = mccp3.MobileClientFactory
-main.register = mccp3.register
-
-# Connect to the DB
-from twistar.registry import Registry
-Registry.DBPOOL = mccp3.ReconnectingConnectionPool('MySQLdb',
-        cp_reconnect=True, user="root", passwd="sasa", db="ejabberd",
-        use_unicode=True, charset='utf8')
-
-
-Software\Microsoft\VisualStudio\9.0\Setup\VC
-
-MTK 广告实现方法
-
-313
-440
-
-
-
-<presence actor="user" xmlns:actor="http://xmpp.sifang.com/"></presence>
-
-
-def makeSession(pytrans, jabberID, resource, ulang):
+<presence actor="user" to='msn.sifang.com' xmlns:actor="http://xmpp.sifang.com/"></presence>
+<presence actor="user"  xmlns:actor="http://xmpp.sifang.com/"></presence>
  
+
  
- 
-CPO，没有点击，但有手势在上面移动
