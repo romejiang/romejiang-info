@@ -164,3 +164,14 @@ kick_this_session(User, Server, Resource, Reason) ->
 
 
 awk '{print $7}' access.log|sort |uniq -c |sort -n
+
+判断Linux发行版本
+lsb_release -i
+
+sudo apt-get install gcc gcc-c++ autoconf libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers gcc gcc-c++ gcc-g77 flex bison autoconf automake bzip2-devel zlib-devel ncurses-devel libjpeg-devel libpng-devel libtiff-devel freetype-devel pam-devel byacc unixODBC unixODBC-devel
+
+apt-get remove ejabberd 
+sudo apt-get install libgconf2-dev libgtk2.0-dev libglib2.0-dev
+sudo apt-get install byacc unixODBC unixODBC-devel
+sudo apt-get install libssl-dev
+./configure --enable-odbc --enable-user=ejabberd --enable-hipe --prefix=/usr --sysconfdir=/etc --localstatedir=/var
