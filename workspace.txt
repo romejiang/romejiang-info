@@ -543,4 +543,148 @@ forxinxiaowen
 <presence actor="user"  xmlns:actor="http://xmpp.sifang.com/"></presence>
  
 
- 
+ /usr/lib/erlang/erts-5.7.4/bin/beam -K false -P 250000         -- -ejabberd /usr/lib/erlang -progname erl -- -home /var/lib/ejabberd -- -sname ejabberd                      -noshell -noinput -noshell -noinput   -pa   /usr/lib/ejabberd/ebin -s ejabberd -kernel inetrc "/etc/ejabberd/inetrc" -ejabberd config "/etc/ejabberd/ejabberd.cfg" log_path "/var/log/ejabberd/ejabberd.log" erlang_log_path "/var/log/ejabberd/erlang.log" -sasl sasl_error_logger false -mnesia dir "/var/lib/ejabberd" -smp disable
+
+
+ /usr/local/lib/erlang/erts-5.8.4/bin/beam -K true -P 250000 -- -root /usr/local/lib/erlang -progname erl -- -home /usr/var/lib/ejabberd -- -sname ejabberd@localhost -noshell -noinput -noshell -noinput -pa /usr/lib/ejabberd/ebin -mnesia dir "/usr/var/lib/ejabberd" -kernel inet_dist_use_interface {127,0,0,1} -s ejabberd -sasl sasl_error_logger {file,"/usr/var/log/ejabberd/erlang.log"} -smp auto start 
+
+客户端别直接杀掉，有可能导致ejabberd cpu 100%，可能是因为ping的timeout在等待客户端的反馈
+a 和 b 同时在线，有个用户掉线
+
+store_packet(From, To, Packet) ->
+    Type = xml:get_tag_attr_s("type", Packet),
+    if
+    (Type /= "error") and (Type /= "groupchat") and
+    (Type /= "headline") ->
+        case check_event_chatstates(From, To, Packet) of
+        true ->
+            #jid{luser = LUser, lserver = LServer} = To,
+            TimeStamp = now(),
+            {xmlelement, _Name, _Attrs, Els} = Packet,
+            Expire = find_x_expire(TimeStamp, Els),
+            gen_mod:get_module_proc(To#jid.lserver, ?PROCNAME) !
+            #offline_msg{us = {LUser, LServer},
+                     timestamp = TimeStamp,
+                     expire = Expire,
+                     from = From,
+                     to = To,
+                     packet = Packet},
+            stop;
+        _ ->
+            ok
+        end;
+    true ->
+        ok
+    end.
+
+%% Check if the packet has subelements about XEP-0022, XEP-0085 or other
+find_x_event_chatstates([], Res) ->
+    Res;
+find_x_event_chatstates([{xmlcdata, _} | Els], Res) ->
+    find_x_event_chatstates(Els, Res);
+find_x_event_chatstates([El | Els], {A, B, C}) ->
+    case xml:get_tag_attr_s("xmlns", El) of
+    ?NS_EVENT ->
+        find_x_event_chatstates(Els, {El, B, C});
+    ?NS_CHATSTATES ->
+        find_x_event_chatstates(Els, {A, El, C});
+    _ ->
+        find_x_event_chatstates(Els, {A, B, true})
+    end.
+
+find_x_expire(_, []) ->
+    never;
+find_x_expire(TimeStamp, [{xmlcdata, _} | Els]) ->
+    find_x_expire(TimeStamp, Els);
+find_x_expire(TimeStamp, [El | Els]) ->
+    case xml:get_tag_attr_s("xmlns", El) of
+    ?NS_EXPIRE ->
+        Val = xml:get_tag_attr_s("seconds", El),
+        case catch list_to_integer(Val) of
+        {'EXIT', _} ->
+            never;
+        Int when Int > 0 ->
+            {MegaSecs, Secs, MicroSecs} = TimeStamp,
+            S = MegaSecs * 1000000 + Secs + Int,
+            MegaSecs1 = S div 1000000,
+            Secs1 = S rem 1000000,
+            {MegaSecs1, Secs1, MicroSecs};
+        _ ->
+            never
+        end;
+    _ ->
+        find_x_expire(TimeStamp, Els)
+    end.
+
+
+
+%% Check if the packet has any content about XEP-0022 or XEP-0085
+check_event_chatstates(From, To, Packet) ->
+    {xmlelement, Name, Attrs, Els} = Packet,
+    case find_x_event_chatstates(Els, {false, false, false}) of
+    %% There wasn't any x:event or chatstates subelements
+    {false, false, _} ->
+        true;
+    %% There a chatstates subelement and other stuff, but no x:event
+    {false, CEl, true} when CEl /= false ->
+        true;
+    %% There was only a subelement: a chatstates
+    {false, CEl, false} when CEl /= false ->
+        %% Don't allow offline storage
+        false;
+    %% There was an x:event element, and maybe also other stuff
+    {El, _, _} when El /= false ->
+        case xml:get_subtag(El, "id") of
+        false ->
+            case xml:get_subtag(El, "offline") of
+            false ->
+                true;
+            _ ->
+                ID = case xml:get_tag_attr_s("id", Packet) of
+                     "" ->
+                     {xmlelement, "id", [], []};
+                     S ->
+                     {xmlelement, "id", [],
+                      [{xmlcdata, S}]}
+                 end,
+                ejabberd_router:route(
+                  To, From, {xmlelement, Name, Attrs,
+                     [{xmlelement, "x",
+                       [{"xmlns", ?NS_EVENT}],
+                       [ID,
+                        {xmlelement, "offline", [], []}]}]
+                    }),
+                true
+            end;
+        _ ->
+            false
+        end
+    end.
+
+
+
+store_packet(From, To, Packet) ->
+    Type = xml:get_tag_attr_s("type", Packet),
+    if
+    (Type /= "error") and (Type /= "groupchat") and
+    (Type /= "headline") ->
+        case check_event_chatstates(From, To, Packet) of
+        true ->
+            #jid{luser = LUser} = To,
+            TimeStamp = now(),
+            {xmlelement, _Name, _Attrs, Els} = Packet,
+            Expire = find_x_expire(TimeStamp, Els),
+            gen_mod:get_module_proc(To#jid.lserver, ?PROCNAME) !
+            #offline_msg{user = LUser,                                                                                                                              
+                     timestamp = TimeStamp,
+                     expire = Expire,
+                     from = From,
+                     to = To,
+                     packet = Packet},
+            stop;
+        _ ->
+            ok
+        end;
+    true ->
+        ok
+    end.

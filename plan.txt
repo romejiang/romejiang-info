@@ -172,6 +172,12 @@ sudo apt-get install gcc gcc-c++ autoconf libjpeg libjpeg-devel libpng libpng-de
 
 apt-get remove ejabberd 
 sudo apt-get install libgconf2-dev libgtk2.0-dev libglib2.0-dev
-sudo apt-get install byacc unixODBC unixODBC-devel
+sudo apt-get install byacc unixodbc unixodbc-dev
 sudo apt-get install libssl-dev
+
+
+apt-get install libncurses5-dev
+
+
 ./configure --enable-odbc --enable-user=ejabberd --enable-hipe --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+./configure --enable-odbc --enable-user=ejabberd --prefix=/usr --sysconfdir=/etc --localstatedir=/var
