@@ -25,6 +25,7 @@ agents = [
 
 def parserPage(url , parser ):	 
 	global AGENTINDEX
+	global TIMEOUT
 	AGENTINDEX += 1
 	if AGENTINDEX > 5: AGENTINDEX=0
 	
@@ -35,7 +36,7 @@ def parserPage(url , parser ):
 	request.add_header('Accept-encoding', 'gzip') 
 	request.add_header('User-Agent', agents[AGENTINDEX]) 
 	try:
-		page = opener.open(request)
+		page = opener.open(request,  timeout=10)
 		print page.code
 		if page.code == 200:	
 			predata = page.read()
@@ -55,10 +56,15 @@ def parserPage(url , parser ):
 				
 		page.close() 
 	except Exception,e: 
-		print 'open error' 
+		print 'open error ' +  str(TIMEOUT)
 		print e 
+		time.sleep(TIMEOUT) 
+		parserPage(url , parser)
+	 
+
+
 	opener.close()
-	time.sleep(10)
+	time.sleep(TIMEOUT)
 	
 
 class postparser(HTMLParser):
@@ -112,7 +118,15 @@ def getName(str , p):
 		return str.split('?')[0]
 
 	 
-
+def getImage(url, filepath):
+	try:
+		urllib.urlretrieve(url, filepath)
+	except Exception,e: 
+		print 'image open error ' + str(TIMEOUT)
+		print e
+		time.sleep(TIMEOUT)
+		getImage(url, filepath)
+ 
 
 category = [
 'http://itunes.apple.com/cn/genre/ios-books/id6018?mt=8',
@@ -147,7 +161,10 @@ app = 'http://itunes.apple.com/us/app/ibooks/id364709193?mt=8'
 #				print item 
 #				urllib.urlretrieve(item, (name +'.'+ item.split('.')[-1]))
 AGENTINDEX = 0
+TIMEOUT = 10
+
 def threadrun(cat , index):
+	global TIMEOUT
 	dirname = getName(cat , 'http://itunes.apple.com/cn/genre/ios-')
 	if not os.path.exists(dirname): 
 		os.makedirs(dirname)
@@ -165,8 +182,9 @@ def threadrun(cat , index):
 		parserPage(p.url[x] , logo)
 		print logo.url
 		if logo.url.strip() != '':
-			urllib.urlretrieve(logo.url, ( dirname + '/' + filename +'.'+ logo.url.split('.')[-1]))
-			time.sleep(10)
+			getImage(logo.url, ( dirname + '/' + filename +'.'+ logo.url.split('.')[-1]))
+			time.sleep(TIMEOUT)
+	print "=========== succeed "+str(index)+"====================================="
 
 if __name__ == "__main__":
 	index = 0
