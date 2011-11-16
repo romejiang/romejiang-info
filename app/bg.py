@@ -11,13 +11,29 @@ import os
 import sys 
 from HTMLParser import HTMLParser
 import winsound
+import socket 
+import thread 
 
-def parserPage(url , parser):	 
- 
- 
+
+agents = [
+"Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5",
+"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; )",
+"Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 5.0)",
+"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 3.5.20706)",
+"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)"]
+
+def parserPage(url , parser ):	 
+	global AGENTINDEX
+	AGENTINDEX += 1
+	if AGENTINDEX > 5: AGENTINDEX=0
+	
+	socket.setdefaulttimeout(10)#这里对整个socket层设置超时时间。后续文件中如果再使用到socket，不必再设置  
+   
 	opener = urllib2.build_opener() 
 	request = urllib2.Request(url)
 	request.add_header('Accept-encoding', 'gzip') 
+	request.add_header('User-Agent', agents[AGENTINDEX]) 
 	try:
 		page = opener.open(request)
 		print page.code
@@ -32,14 +48,17 @@ def parserPage(url , parser):
 				data = predata 
 			try:
 				parser.feed(data) 
-				##print 'start parser'
 			except Exception,ex:
+				parser.url = 'http://a5.mzstatic.com/us/r1000/087/Purple/6d/76/81/mzl.fzaigvmu.175x175-75.jpg'
 				print 'parser error' 
 				print ex
+				
 		page.close() 
 	except Exception,e: 
 		print 'open error' 
-		print e
+		print e 
+	opener.close()
+	time.sleep(10)
 	
 
 class postparser(HTMLParser):
@@ -62,7 +81,7 @@ class postparser(HTMLParser):
 
 class parserAppList(HTMLParser):
 	selected = ('a')
-	substr = 'http://itunes.apple.com/us/app/'
+	substr = 'http://itunes.apple.com/cn/app/'
 	def __init__(self):
 		HTMLParser.__init__(self)
 		self.url = []
@@ -91,48 +110,52 @@ def getName(str , p):
 		return temp[0]
 	else:
 		return str.split('?')[0]
-	
-category = ['http://itunes.apple.com/us/genre/ios-books/id6018?mt=8',
-'http://itunes.apple.com/us/genre/ios-business/id6000?mt=8',
-'http://itunes.apple.com/us/genre/ios-education/id6017?mt=8',
-'http://itunes.apple.com/us/genre/ios-entertainment/id6016?mt=8',
-'http://itunes.apple.com/us/genre/ios-finance/id6015?mt=8',
-'http://itunes.apple.com/us/genre/ios-games/id6014?mt=8',
-'http://itunes.apple.com/us/genre/ios-health-fitness/id6013?mt=8',
-'http://itunes.apple.com/us/genre/ios-lifestyle/id6012?mt=8',
-'http://itunes.apple.com/us/genre/ios-medical/id6020?mt=8',
-'http://itunes.apple.com/us/genre/ios-music/id6011?mt=8',
-'http://itunes.apple.com/us/genre/ios-navigation/id6010?mt=8',
-'http://itunes.apple.com/us/genre/ios-news/id6009?mt=8',
-'http://itunes.apple.com/us/genre/ios-newsstand/id6021?mt=8',
-'http://itunes.apple.com/us/genre/ios-photo-video/id6008?mt=8',
-'http://itunes.apple.com/us/genre/ios-productivity/id6007?mt=8',
-'http://itunes.apple.com/us/genre/ios-reference/id6006?mt=8',
-'http://itunes.apple.com/us/genre/ios-social-networking/id6005?mt=8',
-'http://itunes.apple.com/us/genre/ios-sports/id6004?mt=8',
-'http://itunes.apple.com/us/genre/ios-travel/id6003?mt=8',
-'http://itunes.apple.com/us/genre/ios-utilities/id6002?mt=8',
-'http://itunes.apple.com/us/genre/ios-weather/id6001?mt=8']
+
+	 
+
+
+category = [
+'http://itunes.apple.com/cn/genre/ios-books/id6018?mt=8',
+'http://itunes.apple.com/cn/genre/ios-bcniness/id6000?mt=8',
+'http://itunes.apple.com/cn/genre/ios-education/id6017?mt=8',
+'http://itunes.apple.com/cn/genre/ios-entertainment/id6016?mt=8',
+'http://itunes.apple.com/cn/genre/ios-finance/id6015?mt=8',
+'http://itunes.apple.com/cn/genre/ios-games/id6014?mt=8',
+'http://itunes.apple.com/cn/genre/ios-health-fitness/id6013?mt=8',
+'http://itunes.apple.com/cn/genre/ios-lifestyle/id6012?mt=8',
+'http://itunes.apple.com/cn/genre/ios-medical/id6020?mt=8',
+'http://itunes.apple.com/cn/genre/ios-mcnic/id6011?mt=8',
+'http://itunes.apple.com/cn/genre/ios-navigation/id6010?mt=8',
+'http://itunes.apple.com/cn/genre/ios-news/id6009?mt=8',
+'http://itunes.apple.com/cn/genre/ios-newsstand/id6021?mt=8',
+'http://itunes.apple.com/cn/genre/ios-photo-video/id6008?mt=8',
+'http://itunes.apple.com/cn/genre/ios-productivity/id6007?mt=8',
+'http://itunes.apple.com/cn/genre/ios-reference/id6006?mt=8',
+'http://itunes.apple.com/cn/genre/ios-social-networking/id6005?mt=8',
+'http://itunes.apple.com/cn/genre/ios-sports/id6004?mt=8',
+'http://itunes.apple.com/cn/genre/ios-travel/id6003?mt=8',
+'http://itunes.apple.com/cn/genre/ios-utilities/id6002?mt=8',
+'http://itunes.apple.com/cn/genre/ios-weather/id6001?mt=8']
 
 app = 'http://itunes.apple.com/us/app/ibooks/id364709193?mt=8'
+#http://itunes.apple.com/cn/genre/ios-weather/id6001?mt=8
+#"http://itunes.apple.com/cn/app/quotes-daily-inspiration-wisdom/id458568213?mt=8"
 #调用
 ##parserPage(bdurl , 'ibooks')
 #
 #			for item in parser.url:
 #				print item 
 #				urllib.urlretrieve(item, (name +'.'+ item.split('.')[-1]))
-	
-index = 0
-for cat in category:
-	index = index+1
-	dirname = getName(cat , 'http://itunes.apple.com/us/genre/ios-')
+AGENTINDEX = 0
+def threadrun(cat , index):
+	dirname = getName(cat , 'http://itunes.apple.com/cn/genre/ios-')
 	if not os.path.exists(dirname): 
 		os.makedirs(dirname)
 	p = parserAppList()
 	parserPage(cat, p)
 	for x in range(0,len(p.url)):  
 		print str(index) + "==" + p.names[x]
-		filename = getName( p.url[x] , 'http://itunes.apple.com/us/app/')
+		filename = getName( p.url[x] , 'http://itunes.apple.com/cn/app/')
 		if os.path.exists( dirname + '/' + filename + '.jpg'): continue
 
 		f = open( dirname + '/' + filename + '.txt' , 'w' )
@@ -143,9 +166,19 @@ for cat in category:
 		print logo.url
 		if logo.url.strip() != '':
 			urllib.urlretrieve(logo.url, ( dirname + '/' + filename +'.'+ logo.url.split('.')[-1]))
+			time.sleep(10)
 
-winsound.Beep(1000,1000 * 3)
-#if __name__ == "__main__":
+if __name__ == "__main__":
+	index = 0
+	for cat in category:
+		index = index+1
+		thread.start_new_thread(threadrun, (cat,index))
+
+
+	##winsound.Beep(1000,1000 * 3)
+	while True:
+		time.sleep(3000)
+	
 #	html_code = """
 #	<img class="artwork" width="175" height="175" src="http://a5.mzstatic.com/us/r1000/087/Purple/6d/76/81/mzl.fzaigvmu.175x175-75.jpg" alt="iBooks">
 #	<img src="www.google.comimg"> google.com 
