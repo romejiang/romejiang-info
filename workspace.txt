@@ -551,5 +551,64 @@ forxinxiaowen
 客户端别直接杀掉，有可能导致ejabberd cpu 100%，可能是因为ping的timeout在等待客户端的反馈
 a 和 b 同时在线，有个用户掉线
 
-Foto-Mosaik-Edda software
-http://itunes.apple.com/us/genre/ios-books/id6018?mt=8
+
+
+dzh056@126.com
+790815
+
+卡萨布兰卡ktv  
+021-54757775 021-54757776
+上海徐汇区龙华路2865号
+小方 13310026976
+13817342537 静静
+兄弟的兄弟是股东之一，去玩过，不灵的。。。
+还是缤纷，新9，一号，汇都，上海之夜，人间 那几个的小姐质量好一点
+
+
+	T = ets:new(x,[ordered_set]),
+	[ ets:insert(T,{N}) || N <- lists:seq(1,10) ],
+	TableID = ets:new(temp_table , []), %Create New ETS Table
+	ets:insert(TableID,{1,2} ),                  % insert one Item to Table
+	Result= ets:lookup(TableID ,1),
+	io:format("ets:lookup(TableID ,1) Result: ~p ~n  " ,[ Result  ]),  
+	ets:insert(TableID,{1,3} ),
+	Result2 = ets:lookup(TableID, 1 ),
+	io:format("ets:lookup(TableID ,1) Result2: ~p ~n  ", [ Result2 ]),
+	ets:delete(TableID),
+	BagTableID =  ets:new(temp_table, [bag]),
+	ets:insert(BagTableID,{1,2} ),
+	ets:insert(BagTableID,{1,3} ),
+	ets:insert(BagTableID,{1,4} ),
+	%Note that the time order of object insertions is preserved; 
+	%The first object inserted with the given key will be first in the resulting list, and so on.
+	Result3 = ets:lookup(BagTableID, 1 ),
+	io:format("ets:lookup(BagTableID ,1) Result3: ~p ~n  ", [ Result3 ]),
+	%创建ETS表 注意参数named_table,我们可以通过countries原子来标识这个ETS Table
+	ets:new(countries, [bag,named_table]), 
+	%插入几条数据
+	ets:insert(countries,{yves,france,cook}),  
+	ets:insert(countries,{sean,ireland,bartender}),
+	ets:insert(countries,{marco,italy,cook}),
+	ets:insert(countries,{chris,ireland,tester}).
+
+	ets:new(etslist , [ordered_set, public, named_table, {write_concurrency, true}]), 
+	ets:insert(etslist,{1,1} ),
+	ets:insert(etslist,{2,2} ),
+	ets:insert(etslist,{3,2} ),
+	ets:insert(etslist,{4,2} ),
+	ets:insert(etslist,{5,5} ),
+	Es = ets:select( T ,[{{'_',2},[],['$_']}]),
+	lists:foreach(fun({ID,Name}) ->
+	    io:format("foreach ID : ~p | ~p ~n  " ,[ ID ,Name ])
+	end, etslist),
+
+
+测试主要分两部分，
+网站测试，和sdk测试，
+
+
+测试原则和方法
+
+主要做黑盒测试，以用户的角度使用系统就好了。如果发现bug，尽量记住bug产生之前的操作，让bug可以通过你的描述可以反复重现。
+
+一些在使用过程
